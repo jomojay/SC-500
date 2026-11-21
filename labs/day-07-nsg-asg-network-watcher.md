@@ -11,7 +11,7 @@ NCES needs application-role rules rather than IP-address spreadsheets and must b
 ## Build
 
 1. Create `asg-web` and `asg-api` in the app VNet.
-2. Create `nsg-app` and attach it to `snet-app`.
+2. Verify `nsg-app` is attached to `snet-app`; Day 6 creates the NSG with only Azure's default rules.
 3. Add explicit rules with space between priorities:
    - allow HTTPS from `asg-web` to `asg-api` on a chosen test port;
    - allow Azure Load Balancer probes only where required;
@@ -44,4 +44,3 @@ Delete or deallocate test VMs, disks, public IPs, and NICs at the end. Keep NSGs
 - [Application security groups](https://learn.microsoft.com/azure/virtual-network/application-security-groups)
 - [IP flow verify](https://learn.microsoft.com/azure/network-watcher/network-watcher-ip-flow-verify-overview)
 - [Effective security rules](https://learn.microsoft.com/azure/network-watcher/effective-security-rules-overview)
-

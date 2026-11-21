@@ -18,7 +18,26 @@ Create the address spaces from [architecture](../docs/architecture.md):
 
 Create the named subnets, reserving the exact `AzureFirewallSubnet` and `AzureBastionSubnet` names. Do not attach an NSG to the private-endpoint subnet until you deliberately enable private-endpoint network policies.
 
-Peer hub to both spokes. Do not enable gateway transit because no gateway exists. Create route tables that document the future inspection path but do not point production traffic to a nonexistent firewall.
+The template creates these NSGs with no custom rules (Azure's default NSG rules still apply) and attaches them to the indicated subnets:
+
+| NSG | Subnet |
+|---|---|
+| `nsg-app` | `snet-app` |
+| `nsg-shared` | `snet-shared` |
+| `nsg-aks` | `snet-aks` |
+
+Peer hub to both spokes. Do not enable gateway transit because no gateway exists. Create route tables that document the future inspection path but do not point production traffic to a nonexistent firewall. The template creates `rt-future-inspection-app` and `rt-future-inspection-aks` with gateway-route propagation disabled; neither table is associated with a subnet.
+
+Deploy the networking foundation into the existing `rg-sc500-core-cc` resource group. The parameter file sets both the target resource group and the resource location; the subscription deployment `--location` is the location for Azure's deployment record:
+
+```bash
+az deployment sub create \
+  --location canadacentral \
+  --template-file IaC/networking-foundations/main.bicep \
+  --parameters @IaC/networking-foundations/main.parameters.json
+```
+
+The target resource group must already exist (create it with `scripts/bootstrap.sh` if needed). Running the deployment again updates the resources declared by the template; it does not delete unrelated resources in the group. The template sets the NSGs' custom security rule lists to empty, so add/manage custom rules separately only after considering that a later template deployment will reconcile those lists.
 
 Create a network flow table:
 
@@ -49,4 +68,3 @@ VNets, subnets, NSGs, route tables, and peering have no hourly gateway charge. K
 - [Hub-spoke topology](https://learn.microsoft.com/azure/architecture/networking/architecture/hub-spoke)
 - [Virtual network peering](https://learn.microsoft.com/azure/virtual-network/virtual-network-peering-overview)
 - [Private endpoint network policies](https://learn.microsoft.com/azure/private-link/disable-private-endpoint-network-policy)
-
